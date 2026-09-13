@@ -1,55 +1,59 @@
 # DESIGN.md — @goodandready-private/dsh-model-search
 
 ## Product / Purpose
-- **Назначение**: Расширение выпадающего меню селектора моделей в DeepSeek Harness WebUI строкой живого поиска с мгновенной фильтрацией моделей по названию, идентификатору, провайдеру, с поддержкой фонетических алиасов, автоисправления раскладки и защитой от изменений ядра.
-- **Аудитория**: Пользователи DeepSeek Harness со множеством подключённых провайдеров и моделей.
-- **Статус**: Версия 0.1.3 (private).
+- **Purpose**: Enhancement for DeepSeek Harness WebUI model selection dropdown menu. Injects a high-performance live search input with instant model filtering by name, technical identifier (ID), provider title, intelligent subsequence/fuzzy matching, and quick access to recently used models.
+- **Audience**: DeepSeek Harness users with multiple AI providers and extensive model catalogs.
+- **Target Version**: 0.1.4.
 
 ---
 
 ## User Surfaces
 - **Web/UI**:
-  - Строка поиска (`.dms-wrap`, `.dms-input`) фиксируется в верхней части выпадающего меню моделей (`position: sticky; top: 0`), снабжена семантической ролью `role="search"`.
-  - Один нативный стиль очистки: кастомная кнопка `.dms-clear` (`×`), нативный `::-webkit-search-cancel-button` скрыт.
-  - Сообщение об отсутствии результатов (`.dms-empty`) отображается с `aria-live="polite"`, если ни одна модель не подошла под запрос.
+  - Sticky search bar (`.dms-wrap`, `.dms-input`) pinned to the top of the model menu (`position: sticky; top: 0`) with semantic `role="search"`.
+  - Unified native clear button: custom `.dms-clear` (`×`), native `::-webkit-search-cancel-button` suppressed.
+  - Empty state message (`.dms-empty`) with `aria-live="polite"` when no models match the query.
+  - Recent models memory: automatically tracks up to 5 recently selected model IDs in `localStorage['dms_recent_models']`.
 - **DSH UI / Menu integration**:
-  - Корректная работа с актуальным двухуровневым селектором моделей DSH (`ModelSelect.tsx`):
-    - В корневом меню (`root`: выбор между моделью и reasoning effort) поиск не отображается.
-    - При входе в список моделей (`pane === 'model'`) поисковая строка монтируется над списком групп моделей (`.groups`).
-    - При возврате в корневое меню или закрытии селектора строка поиска корректно очищается.
+  - Seamless integration with DSH's 2-level model selector (`ModelSelect.tsx`):
+    - In root menu (`root`: selection between model and reasoning effort), search input is not mounted.
+    - Upon entering model catalog (`pane === 'model'`), search bar mounts above the model groups list (`.groups`).
+    - When returning to root menu or closing dropdown, search bar is cleanly dismantled via idempotent cleanup handler.
 
 ---
 
 ## Visual Direction
-- **Атмосфера**: Чистый, органичный элемент интерфейса DeepSeek Harness, визуально неотличимый от нативных элементов ядра.
-- **Стилизация и токены темы**:
-  - Фон контейнера поиска: `var(--dsw-specific-menu)`
-  - Фон поля ввода: `var(--dsw-alias-bg-base, var(--dsw-specific-menu))`
-  - Границы: `1px solid var(--dsw-alias-border-l2)`
-  - Цвет текста: `var(--dsw-alias-label-primary)`
-  - Плейсхолдер и подсказки: `var(--dsw-alias-label-tertiary)`
-  - Фокус: `border-color: var(--dsw-alias-state-business-primary)`
-  - Все CSS-классы изолированы префиксом `dms-` (`.dms-wrap`, `.dms-input`, `.dms-clear`, `.dms-empty`).
+- **Atmosphere**: Clean, organic DeepSeek Harness interface element, visually indistinguishable from native core components.
+- **Styling & Theme Tokens**:
+  - Container background: `var(--dsw-specific-menu)`
+  - Input background: `var(--dsw-alias-bg-base, var(--dsw-specific-menu))`
+  - Borders: `1px solid var(--dsw-alias-border-l2)`
+  - Text color: `var(--dsw-alias-label-primary)`
+  - Placeholder & hints: `var(--dsw-alias-label-tertiary)`
+  - Focus state: `border-color: var(--dsw-alias-state-business-primary)`
+  - Strict CSS prefixing: all classes isolated with `dms-` (`.dms-wrap`, `.dms-input`, `.dms-clear`, `.dms-empty`, `.dms-recent-badge`).
 
 ---
 
 ## Technical & Safety Constraints
-- **Запрет на перестановку DOM-узлов и текстовый fallback**:
-  - Никаких вызовов `insertBefore` или `appendChild` на элементах React-дерева (`section[role="group"]`, `button[role="menuitemradio"]`).
-  - Фильтрация выполняется исключительно через управление видимостью (`display: none` / `display: ''`).
-  - **Устойчивость к рефакторингу стилей ядра**: имя модели извлекается из `opt.textContent` и атрибута `title` без привязки к хрупкому CSS-классу `class*="modelName"`.
-- **Производительность и жизненный цикл**:
-  - `MutationObserver` батчится через `requestAnimationFrame` (`scheduleScan()`). Нулевая нагрузка на CPU при интенсивном стриминге токенов в чате.
-  - Строгая идемпотентность: перед повторной инициализацией вызывается `_dmsCleanup()`, предотвращая утечки слушателей событий.
-- **Локализация и умный поиск**:
-  - Встроенная поддержка RU, EN и ZH.
-  - Поддержка разделителей и пунктуации: токенизация по `[\s,;/]+` и очистка граничных знаков препинания (`deepseek, flash`, `qwen/coder`, `claude; sonnet`).
-  - **Двусторонняя коррекция раскладки**: запросы в русской раскладке транслируются в латиницу (`вуузыуул` -> `deepseek`, `пзе-4щ` -> `gpt-4o`), а в латинской — в кириллицу (`zyltrc` -> `яндекс`).
-  - **Расширенные фонетические алиасы**: поддержка популярных русских названий моделей и модификаторов (`дипсик`, `гпт`, `клод`, `сонет`, `опус`, `хайку`, `квен`, `гемини`, `флеш`, `грок`, `оллама`, `ризонер`, `мини`, `нано`, `макс`).
-- **Клавиатурная доступность, a11y и скролл**:
-  - Умная навигация: стрелки вверх/вниз перемещают фокус строго по видимым отфильтрованным моделям, исключая попадание фокуса на скрытые элементы ядра.
-  - Стрелка вверх на первом элементе возвращает фокус в строку поиска.
-  - Атрибуты `aria-hidden` динамически синхронизируются со скрытыми элементами.
-  - `Escape` очищает поиск, если введён текст.
-  - `Enter` активирует первую видимую модель.
-  - При каждом вводе запроса скролл контейнера сбрасывается наверх (`groups.scrollTop = 0`).
+- **Zero DOM-tree mutation**:
+  - No `insertBefore` or `appendChild` reordering on React nodes (`section[role="group"]`, `button[role="menuitemradio"]`).
+  - Filtering executed purely via CSS visibility control (`display: none` / `display: ''`).
+  - Resilience against core style refactoring: model identification extracts text safely from `opt.textContent` and `title` attributes without relying on fragile core CSS module classes.
+- **Performance & Lifecycle**:
+  - `MutationObserver` batched via `requestAnimationFrame` (`scheduleScan()`). Zero CPU overhead during token streaming in active chat sessions.
+  - Strict idempotency: `_dmsCleanup()` executes prior to any re-initialization.
+- **Localization Standard**:
+  - Canonical language: English (`en`) as source and fallback.
+  - Chinese (`zh`) as first-class native locale.
+  - **No hardcoded Russian in plugin code**: In compliance with `dsh-documentation-standard`, Russian localization is provided via `dsh-russian-lang` (registered via Gitea issue `goodandready/dsh-russian-lang#192`).
+  - Core integration: registers keys (`dms.placeholder`, `dms.empty`, `dms.clear`, `dms.recent`) with `ctx.locale` when available.
+- **Search Capabilities**:
+  - Multi-term AND matching with punctuation handling (`[\s,;/]+`).
+  - `@provider` filter syntax (e.g. `@ollama`, `@openrouter`, `@openai`) specifically narrows models by provider title.
+  - Subsequence and initials fuzzy matching: matches acronyms and non-contiguous tokens (e.g. `dsr1` -> `provider-id/model-reasoner-1`).
+- **Keyboard Navigation & Accessibility (a11y)**:
+  - Arrow keys navigate exclusively across visible (non-hidden) models.
+  - Up arrow on first item cycles focus back to search input.
+  - Dynamic synchronization of `aria-hidden` attributes.
+  - `Escape` clears search text if non-empty; `Enter` activates the first visible model.
+  - Scroll position resets to top on query change (`groups.scrollTop = 0`).
