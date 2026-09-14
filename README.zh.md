@@ -1,4 +1,4 @@
-# 📦 @goodandready-private/dsh-model-search
+# 📦 @goodandready/dsh-model-search
 
 <div align="center">
 
@@ -37,7 +37,7 @@
 
 ## 概述
 
-**`@goodandready-private/dsh-model-search`** 深度增强 DeepSeek Harness WebUI 的模型下拉选择菜单。在配置了多个服务商以及数十个 AI 模型的环境中，通过即时搜索栏和智能匹配，无需翻动长列表即可毫秒级锁定目标模型。
+**`@goodandready/dsh-model-search`** 深度增强 DeepSeek Harness WebUI 的模型下拉选择菜单。在配置了多个服务商以及数十个 AI 模型的环境中，通过即时搜索栏和智能匹配，无需翻动长列表即可毫秒级锁定目标模型。
 
 ---
 
@@ -64,7 +64,7 @@
 在您的 DSH web 配置文件中添加：
 
 ```bash
-dsh plugin --profile web add @goodandready-private/dsh-model-search@0.1.4
+dsh plugin --profile web add @goodandready/dsh-model-search@0.1.4
 ```
 
 ---
