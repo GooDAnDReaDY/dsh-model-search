@@ -3,7 +3,7 @@
 ## Product / Purpose
 - **Purpose**: Enhancement for DeepSeek Harness WebUI model selection dropdown menu. Injects a high-performance live search input with instant model filtering by name, technical identifier (ID), provider title, intelligent subsequence/fuzzy matching, and quick access to recently used models.
 - **Audience**: DeepSeek Harness users with multiple AI providers and extensive model catalogs.
-- **Target Version**: 0.1.4.
+- **Target Version**: 0.1.5.
 
 ---
 

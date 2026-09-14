@@ -64,7 +64,7 @@
 在您的 DSH web 配置文件中添加：
 
 ```bash
-dsh plugin --profile web add @goodandready/dsh-model-search@0.1.4
+dsh plugin --profile web add @goodandready/dsh-model-search@0.1.5
 ```
 
 ---
