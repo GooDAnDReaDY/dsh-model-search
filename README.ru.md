@@ -64,7 +64,7 @@
 Добавление в web-профиль DSH:
 
 ```bash
-dsh plugin --profile web add @goodandready/dsh-model-search@0.1.4
+dsh plugin --profile web add @goodandready/dsh-model-search@0.1.5
 ```
 
 ---
