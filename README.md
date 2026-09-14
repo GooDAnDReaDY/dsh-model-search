@@ -5,6 +5,7 @@
 <h3>Live Searchable Model Selector Enhancement for DeepSeek Harness WebUI</h3>
 
 <p align="center">
+  <a href="https://www.npmjs.com/package/@goodandready/dsh-model-search"><img src="https://img.shields.io/npm/v/@goodandready/dsh-model-search.svg?style=for-the-badge&color=6366f1&labelColor=1e1b4b" alt="npm version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/GooDAnDReaDY/dsh-model-search.svg?style=for-the-badge&color=10b981&labelColor=064e3b" alt="license"></a>
   <a href="https://github.com/topics/dsh-plugin"><img src="https://img.shields.io/badge/DSH-Plugin-8b5cf6.svg?style=for-the-badge&labelColor=2e1065" alt="DSH Plugin"></a>
   <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node-20%2B-f59e0b.svg?style=for-the-badge&labelColor=451a03" alt="Node version"></a>
@@ -12,15 +13,16 @@
 
 <!-- Showcase Link -->
 <p align="center">
-  <a href="https://goodandready.app/"><img src="https://img.shields.io/badge/🌐_DSH_Hub-goodandready.app-ff4500.svg?style=for-the-badge&labelColor=1a1a2e" alt="GoodAndReady Showcase"></a>
+  <a href="https://goodandready.app/"><img src="https://img.shields.io/badge/All_Author_Projects-goodandready.app-ff4500.svg?style=for-the-badge&logo=rocket&logoColor=white&labelColor=1a1a2e" alt="All Author Projects"></a>
 </p>
 
 <p align="center">
   <a href="README.md"><b>🇬🇧 English</b></a> •
-  <a href="README.zh.md"><b>🇨🇳 中文说明</b></a> •
-  <a href="README.ru.md"><b>🇷🇺 Русский</b></a>
+  <a href="README.ru.md"><b>🇷🇺 Русский</b></a> •
+  <a href="README.zh.md"><b>🇨🇳 中文说明</b></a>
 </p>
 
+<!-- Mandatory project support block -->
 <table align="center">
   <tr>
     <td align="center">
@@ -35,54 +37,97 @@
 
 ---
 
-## Overview
+## ⚡ Overview & The Problem
 
-**`@goodandready/dsh-model-search`** enhances the DeepSeek Harness WebUI model selection dropdown menu by introducing an instant, keyboard-accessible live search input. As AI setups scale with dozens of models across multiple providers, finding the right model becomes instantaneous without tedious scrolling.
+As autonomous workflows in **DeepSeek Harness** scale with dozens of models across diverse local and remote providers (OpenAI, Anthropic, OpenRouter, Ollama, DeepSeek), the default model selector dropdown becomes difficult to navigate. Users often find themselves scrolling through lengthy lists or losing track of exact provider namespaces.
 
----
-
-## Features
-
-- 🔍 **Instant Filtering**: Real-time filtering by model name, technical model identifier (`provider/model-id`), and provider group name.
-- 🔀 **Multi-Term & Delimiter Support**: Supports complex search queries separated by spaces, commas, slashes, or semicolons (`provider/model`, `reasoner; 32b`).
-- ⚡ **Smart Subsequence & Acronym Matching**: Type abbreviations or non-contiguous letters to match models quickly (e.g., `dsr1` matches `provider-id/deepseek-reasoner-1`).
-- 🏷️ **`@provider` Syntax Filtering**: Target a specific provider instantly using `@` syntax (e.g., `@ollama`, `@openrouter`, `@openai`).
-- 🕒 **Recent Models Memory**: Remembers recently selected models in browser local storage and keeps them quickly accessible.
-- ⌨️ **Keyboard Navigation**:
-  - `ArrowDown` / `ArrowUp` cycle strictly through visible, matched models.
-  - `ArrowUp` on the first item brings focus back into the search input.
-  - `Enter` immediately selects the top visible model.
-  - `Escape` clears active search input.
-- 🛡️ **Core Resilience**: Non-invasive filtering via visibility toggling; completely immune to DSH core CSS module class name changes.
-- 🌐 **Multi-Language Architecture**: Native English (`en`) and Chinese (`zh`) support in core; Russian translation provided via `@goodandready/dsh-russian-lang`.
-- 🎨 **Theme-Native Styling**: Uses official DSH CSS design tokens, seamlessly blending into both Dark and Light themes.
+**`@goodandready/dsh-model-search`** solves this by injecting an instant, non-invasive, keyboard-friendly live search field directly into the DSH WebUI model picker:
+* **Instant Filtering**: Real-time matching by model name, technical identifier (`provider/model-id`), or provider group.
+* **Smart Fuzzy & Acronym Matching**: Subsequence detection allows matching queries like `dsr1` directly to `deepseek-reasoner-1`.
+* **`@provider` Syntax**: Instant filtering of models by specific provider (e.g., `@ollama`, `@openrouter`).
+* **Recent Selections**: Remembers recently chosen models in local storage for quick access.
+* **Full Keyboard Accessibility**: Strict arrow-key cycling across filtered items, immediate selection on `Enter`, and dismiss with `Escape`.
 
 ---
 
-## Installation
+## 🏗️ Architecture
 
-Add to your DSH web profile:
-
-```bash
-dsh plugin --profile web add @goodandready/dsh-model-search@0.1.5
+```mermaid
+graph LR
+  A[DSH WebUI Dropdown] --> B[lib/client.js]
+  B --> C[Search Input Mount]
+  C --> D{Query Parser}
+  D -->|Text / Acronym| E[Subsequence Fuzzy Matcher]
+  D -->|@provider| F[Provider Group Filter]
+  E --> G[DOM Visibility Toggler]
+  F --> G
+  G --> H[Keyboard Navigation Cycle]
+  H --> I[Recent Selection Memory]
 ```
 
 ---
 
-## Verification & Testing
+## ✨ Core Features
 
-Run the test suite:
+### 1. Multi-Term & Delimiter-Aware Search
+Supports multi-part search terms separated by spaces, commas, slashes, or semicolons:
+* Query: `openrouter/claude-3-5`
+* Query: `reasoner; 32b`
+* Query: `@ollama llama3`
+
+### 2. Acronym & Subsequence Matching
+Matches non-contiguous abbreviations quickly:
+* Typing `dsr` matches `deepseek-reasoner`
+* Typing `gpt4o` matches `openai/gpt-4o-mini`
+
+### 3. Dedicated `@provider` Syntax
+Prefixing a query with `@` isolates models belonging to that provider:
+* `@openai` shows only models registered under the OpenAI provider.
+* `@ollama qwen` finds Qwen models hosted on your local Ollama instance.
+
+### 4. Keyboard Navigation Matrix
+
+| Key | Action |
+|:---|:---|
+| `ArrowDown` | Move active focus to the next visible matched model |
+| `ArrowUp` | Move active focus to previous visible model; returns to search input at top |
+| `Enter` | Immediately selects the currently highlighted or top visible model |
+| `Escape` | Clears active search input; closes dropdown if input is already empty |
+
+### 5. Resilient Core Integration
+* **Non-invasive DOM manipulation**: Only toggles item visibility (`display: none` / visible); never detaches or rearranges React virtual DOM nodes.
+* **Resistant to upstream changes**: Independent of DSH core CSS module hash changes.
+* **Theme-Native Styling**: Uses official DSH CSS variables to seamlessly adapt to Dark and Light modes.
+* **Multi-Language Support**: English (`en`) and Chinese (`zh`) built-in; Russian (`ru`) dynamically provided when `@goodandready/dsh-russian-lang` is active.
+
+---
+
+## 📦 Installation
+
+Add to your DeepSeek Harness Web profile:
 
 ```bash
-# Verify syntax
+dsh plugin --profile web add @goodandready/dsh-model-search
+```
+
+Restart DSH or reload the browser interface to activate live search in the model selector.
+
+---
+
+## 🧪 Verification & Testing
+
+Run unit and syntax checks:
+
+```bash
+# Verify JavaScript syntax
 npm run check
 
-# Run unit and integration tests
+# Run automated test suite
 npm test
 ```
 
 ---
 
-## License
+## 📄 License
 
-MIT © [GooDAnDReaDY](https://goodandready.app)
+MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
