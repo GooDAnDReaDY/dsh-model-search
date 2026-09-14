@@ -1,4 +1,4 @@
-# DESIGN.md — @goodandready-private/dsh-model-search
+# DESIGN.md — @goodandready/dsh-model-search
 
 ## Product / Purpose
 - **Purpose**: Enhancement for DeepSeek Harness WebUI model selection dropdown menu. Injects a high-performance live search input with instant model filtering by name, technical identifier (ID), provider title, intelligent subsequence/fuzzy matching, and quick access to recently used models.

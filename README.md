@@ -1,4 +1,4 @@
-# 📦 @goodandready-private/dsh-model-search
+# 📦 @goodandready/dsh-model-search
 
 <div align="center">
 
@@ -37,7 +37,7 @@
 
 ## Overview
 
-**`@goodandready-private/dsh-model-search`** enhances the DeepSeek Harness WebUI model selection dropdown menu by introducing an instant, keyboard-accessible live search input. As AI setups scale with dozens of models across multiple providers, finding the right model becomes instantaneous without tedious scrolling.
+**`@goodandready/dsh-model-search`** enhances the DeepSeek Harness WebUI model selection dropdown menu by introducing an instant, keyboard-accessible live search input. As AI setups scale with dozens of models across multiple providers, finding the right model becomes instantaneous without tedious scrolling.
 
 ---
 
@@ -64,7 +64,7 @@
 Add to your DSH web profile:
 
 ```bash
-dsh plugin --profile web add @goodandready-private/dsh-model-search@0.1.4
+dsh plugin --profile web add @goodandready/dsh-model-search@0.1.4
 ```
 
 ---

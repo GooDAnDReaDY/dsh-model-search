@@ -1,5 +1,5 @@
 {
-  "name": "@goodandready-private/dsh-model-search",
+  "name": "@goodandready/dsh-model-search",
   "version": "0.1.4",
   "description": "DSH web plugin: searchable model selector for DeepSeek Harness WebUI",
   "type": "module",
@@ -34,9 +34,6 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GooDAnDReaDY/dsh-model-search.git"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   },
   "keywords": [
     "deepseek",

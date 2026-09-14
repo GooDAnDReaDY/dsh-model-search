@@ -1,4 +1,4 @@
-# 📦 @goodandready-private/dsh-model-search
+# 📦 @goodandready/dsh-model-search
 
 <div align="center">
 
@@ -37,7 +37,7 @@
 
 ## Обзор
 
-**`@goodandready-private/dsh-model-search`** дополняет выпадающее меню выбора моделей в DeepSeek Harness WebUI полем мгновенного поиска. Когда подключено множество провайдеров и моделей, найти нужную модель можно за доли секунды без прокрутки длинных списков.
+**`@goodandready/dsh-model-search`** дополняет выпадающее меню выбора моделей в DeepSeek Harness WebUI полем мгновенного поиска. Когда подключено множество провайдеров и моделей, найти нужную модель можно за доли секунды без прокрутки длинных списков.
 
 ---
 
@@ -64,7 +64,7 @@
 Добавление в web-профиль DSH:
 
 ```bash
-dsh plugin --profile web add @goodandready-private/dsh-model-search@0.1.4
+dsh plugin --profile web add @goodandready/dsh-model-search@0.1.4
 ```
 
 ---
