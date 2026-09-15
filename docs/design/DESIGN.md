@@ -1,7 +1,7 @@
 # DESIGN.md — @goodandready/dsh-model-search
 
 ## Product / Purpose
-- **Purpose**: Enhancement for DeepSeek Harness WebUI model selection dropdown menu. Injects a high-performance live search input with instant model filtering by name, technical identifier (ID), provider title, intelligent subsequence/fuzzy matching, and quick access to recently used models.
+- **Purpose**: Enhancement for DeepSeek Harness WebUI model selection dropdown menu. Injects a high-performance live search input with instant model filtering by name, provider title, intelligent subsequence/fuzzy matching, and `@provider` syntax.
 - **Audience**: DeepSeek Harness users with multiple AI providers and extensive model catalogs.
 - **Target Version**: 0.1.5.
 
@@ -12,7 +12,6 @@
   - Sticky search bar (`.dms-wrap`, `.dms-input`) pinned to the top of the model menu (`position: sticky; top: 0`) with semantic `role="search"`.
   - Unified native clear button: custom `.dms-clear` (`×`), native `::-webkit-search-cancel-button` suppressed.
   - Empty state message (`.dms-empty`) with `aria-live="polite"` when no models match the query.
-  - Recent models memory: automatically tracks up to 5 recently selected model IDs in `localStorage['dms_recent_models']`.
 - **DSH UI / Menu integration**:
   - Seamless integration with DSH's 2-level model selector (`ModelSelect.tsx`):
     - In root menu (`root`: selection between model and reasoning effort), search input is not mounted.
@@ -30,7 +29,7 @@
   - Text color: `var(--dsw-alias-label-primary)`
   - Placeholder & hints: `var(--dsw-alias-label-tertiary)`
   - Focus state: `border-color: var(--dsw-alias-state-business-primary)`
-  - Strict CSS prefixing: all classes isolated with `dms-` (`.dms-wrap`, `.dms-input`, `.dms-clear`, `.dms-empty`, `.dms-recent-badge`).
+  - Strict CSS prefixing: all classes isolated with `dms-` (`.dms-wrap`, `.dms-input`, `.dms-clear`, `.dms-empty`).
 
 ---
 
@@ -40,19 +39,21 @@
   - Filtering executed purely via CSS visibility control (`display: none` / `display: ''`).
   - Resilience against core style refactoring: model identification extracts text safely from `opt.textContent` and `title` attributes without relying on fragile core CSS module classes.
 - **Performance & Lifecycle**:
-  - `MutationObserver` batched via `requestAnimationFrame` (`scheduleScan()`). Zero CPU overhead during token streaming in active chat sessions.
-  - Strict idempotency: `_dmsCleanup()` executes prior to any re-initialization.
+  - **Selective `MutationObserver`**: inspects `addedNodes` and `removedNodes` for menu elements before scheduling `scan()`. Complete zero CPU overhead during chat token streaming, tool calls, and background notifications.
+  - **Clean state management**: module-level `WeakMap<Element, State>` and `Set<Element>` track active menus without polluting alien React DOM nodes with expando properties.
+  - **Strict idempotency**: `cleanup()` releases all event listeners, removes injected nodes, and cancels pending autofocus timers.
 - **Localization Standard**:
   - Canonical language: English (`en`) as source and fallback.
   - Chinese (`zh`) as first-class native locale.
   - **No hardcoded Russian in plugin code**: In compliance with `dsh-documentation-standard`, Russian localization is provided via `dsh-russian-lang` (registered via Gitea issue `goodandready/dsh-russian-lang#192`).
-  - Core integration: registers keys (`dms.placeholder`, `dms.empty`, `dms.clear`, `dms.recent`) with `ctx.locale` when available.
+  - **Lifecycle-bound registration**: registers dictionary keys (`dms.placeholder`, `dms.empty`, `dms.clear`) in namespace `'@goodandready/dsh-model-search'` inside `ctx.effect()`, returning the disposer. Reads translations dynamically via `ctx.locale.bind()`.
 - **Search Capabilities**:
   - Multi-term AND matching with punctuation handling (`[\s,;/]+`).
   - `@provider` filter syntax (e.g. `@ollama`, `@openrouter`, `@openai`) specifically narrows models by provider title.
   - Subsequence and initials fuzzy matching: matches acronyms and non-contiguous tokens (e.g. `dsr1` -> `provider-id/model-reasoner-1`).
+  - Strict separation between model name and provider title in `matchesQuery` to prevent false positive group matching.
 - **Keyboard Navigation & Accessibility (a11y)**:
-  - Arrow keys navigate exclusively across visible (non-hidden) models.
+  - Arrow keys navigate exclusively across visible (non-hidden: `:not([aria-hidden="true"])`) models.
   - Up arrow on first item cycles focus back to search input.
   - Dynamic synchronization of `aria-hidden` attributes.
   - `Escape` clears search text if non-empty; `Enter` activates the first visible model.
