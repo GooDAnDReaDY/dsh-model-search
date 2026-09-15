@@ -1,15 +1,6 @@
-# Findings: dsh-model-search Feature Enhancements
+# Findings: Issue #16 Architecture Review & Remediation
 
-## 1. Multi-Language Standard Compliance
-- Previous `lib/client.js` contained hardcoded `I18N.ru` objects and an extensive Russian phonetic alias map (`дипсик`, `клод`, etc.).
-- In accordance with `dsh-documentation-standard`, Russian localization strings must never be hardcoded into plugins; they belong strictly to `@goodandready/dsh-russian-lang`.
-- Created Gitea Issue #192 in `goodandready/dsh-russian-lang` requesting the translation registration for `dms.placeholder`, `dms.empty`, `dms.clear`, and `dms.recent`.
-
-## 2. Smart Matcher Design
-- Implemented substring matching + `@provider` filter syntax + subsequence fuzzy matching (for query tokens >= 3 chars) + acronym initials matching.
-- Multi-term searches with delimiters (`/`, `,`, `;`, spaces) work reliably with zero external dependencies, in line with `ponytail` (minimalist, zero-bloat).
-
-## 3. Package File Integrity
-- Checked via `npm pack --dry-run --json`.
-- Only legitimate product files are included in the package: `LICENSE`, `README.md`, `README.ru.md`, `README.zh.md`, `cordis.patch.yml`, `lib/client.js`, `lib/index.js`, `package.json`.
-- Package size is 11.3 KiB (unpacked 34.8 KiB), well below the 256 KiB threshold.
+1. **Locale Contract**: DSH's `@deepseek-ai/dsh-client-locale` implements `.bind(ns) -> t(key, params)` and fallback chains. The old `.get()` call never existed and always failed. Using `ctx.locale.bind()` and `ctx.effect(() => ctx.locale.register(...))` provides full native EN/ZH and dynamic RU resolution without leaks.
+2. **MutationObserver Overhead**: By filtering mutations for `[role="menu"]` / `[class*="_menu"]` additions/removals, unrelated DOM mutations during chat streaming no longer trigger scans.
+3. **Matcher Isolation**: `lib/matcher.js` serves as single source of truth for both production runtime and unit testing, guaranteed by `scripts/build.mjs --check`.
+4. **Recents Removal**: Removing unused write-only `localStorage` code keeps the plugin strictly focused on search and eliminates foreign DOM pollution.

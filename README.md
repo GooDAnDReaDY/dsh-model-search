@@ -45,7 +45,7 @@ As autonomous workflows in **DeepSeek Harness** scale with dozens of models acro
 * **Instant Filtering**: Real-time matching by model name, technical identifier (`provider/model-id`), or provider group.
 * **Smart Fuzzy & Acronym Matching**: Subsequence detection allows matching queries like `dsr1` directly to `deepseek-reasoner-1`.
 * **`@provider` Syntax**: Instant filtering of models by specific provider (e.g., `@ollama`, `@openrouter`).
-* **Recent Selections**: Remembers recently chosen models in local storage for quick access.
+* **Zero CPU Overhead**: Selective MutationObserver guarantees complete zero CPU overhead during chat streaming.
 * **Full Keyboard Accessibility**: Strict arrow-key cycling across filtered items, immediate selection on `Enter`, and dismiss with `Escape`.
 
 ---
@@ -61,8 +61,7 @@ graph LR
   D -->|@provider| F[Provider Group Filter]
   E --> G[DOM Visibility Toggler]
   F --> G
-  G --> H[Keyboard Navigation Cycle]
-  H --> I[Recent Selection Memory]
+  G --> H[Keyboard Navigation & Selection]
 ```
 
 ---
