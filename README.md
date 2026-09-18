@@ -101,6 +101,11 @@ Prefixing a query with `@` isolates models belonging to that provider:
 
 ---
 
+### 6. One-Click In-App Updater & Settings Card
+* **Native settings card**: Integrates into DSH Settings → Plugins → Plugin Settings (settings.plugin.item) under namespace dsh-model-search.
+* **In-place updates**: Checks the npm registry for new releases, compares versions (including prereleases), and performs one-click updates with loopback-only fail-closed security and single-flight click protection.
+* **100% Theme Token Compliance**: Fully styled using official DSH design tokens (--dsw-*) with zero hardcoded hex or rgba colors, matching both Dark and Light themes.
+
 ## 📦 Installation
 
 Add to your DeepSeek Harness Web profile:
