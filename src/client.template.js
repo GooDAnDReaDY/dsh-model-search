@@ -764,9 +764,7 @@ window.__ModuleLoader__.load({
 
     // ── Cordis Client Module Exports ─────────────────────────────────────────
 
-    exports.inject = ['locale', 'slots']
-
-    exports.apply = function apply(ctx) {
+    function apply(ctx) {
       const NS = 'dsh-model-search'
       const I18N_NS = '@goodandready/dsh-model-search'
 
@@ -842,6 +840,7 @@ window.__ModuleLoader__.load({
       }, '@goodandready/dsh-model-search: lifecycle')
     }
 
+    module.exports = { apply, inject: ['slots', 'locale', 'settingsScope'] }
     return module.exports
   }
 })
