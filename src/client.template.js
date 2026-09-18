@@ -590,7 +590,9 @@ window.__ModuleLoader__.load({
     if (!React && typeof require === 'function') {
       try {
         React = require('react')
-      } catch (_) {}
+      } catch (err) {
+        React = null
+      }
     }
 
     let ChevronIcon = null
@@ -598,7 +600,9 @@ window.__ModuleLoader__.load({
       try {
         const primitives = require('@deepseek-ai/dsh-client-ui-primitives')
         ChevronIcon = primitives && primitives.IconChevronDownOutline14
-      } catch (_) {}
+      } catch (err) {
+        ChevronIcon = null
+      }
     }
 
     function FallbackChevron() {
@@ -821,7 +825,9 @@ window.__ModuleLoader__.load({
         }
         try {
           translate = ctx.locale.bind(I18N_NS)
-        } catch (_) {}
+        } catch (err) {
+          translate = (key) => key
+        }
       }
 
       const mountSettingsCard = () => {
