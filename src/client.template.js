@@ -19,11 +19,33 @@ window.__ModuleLoader__.load({
         placeholder: 'Search model or provider…',
         empty: 'No matching models',
         clear: 'Clear search',
+        title: 'Model Search',
+        desc: 'Searchable model selector for DeepSeek Harness WebUI',
+        updater_current: 'Current version',
+        updater_check: 'Check for updates',
+        updater_checking: 'Checking…',
+        updater_update_now: 'Update now',
+        updater_updating: 'Updating…',
+        updater_up_to_date: 'Up to date',
+        updater_update_available: 'New release available: v{version}',
+        updater_restart_notice: 'Update installed. Restart DSH to apply.',
+        updater_failed: 'Failed to check or install update',
       },
       zh: {
         placeholder: '搜索模型或服务商…',
         empty: '没有找到匹配的模型',
         clear: '清除搜索',
+        title: '模型搜索',
+        desc: 'DeepSeek Harness WebUI 模型即时检索与筛选扩展',
+        updater_current: '当前版本',
+        updater_check: '检查更新',
+        updater_checking: '正在检查…',
+        updater_update_now: '立即更新',
+        updater_updating: '正在更新…',
+        updater_up_to_date: '已是最新版本',
+        updater_update_available: '发现新版本: v{version}',
+        updater_restart_notice: '更新已安装，请重启 DSH 生效。',
+        updater_failed: '检查或安装更新失败',
       },
     }
 
@@ -57,7 +79,7 @@ window.__ModuleLoader__.load({
       const style = document.createElement('style')
       style.id = STYLE_ID
       style.dataset.dshPlugin = 'dsh-model-search'
-      style.textContent = 
+      style.textContent = `
         .dms-wrap {
           position: sticky;
           top: 0;
@@ -137,7 +159,110 @@ window.__ModuleLoader__.load({
           line-height: 20px;
           text-align: center;
         }
-      
+        .dms-card {
+          border: 1px solid var(--dsw-alias-border-l2);
+          background: var(--dsw-alias-bg-layer-3);
+          border-radius: 12px;
+          list-style: none;
+          margin-bottom: 12px;
+        }
+        .dms-card-head {
+          appearance: none;
+          width: 100%;
+          font: inherit;
+          color: inherit;
+          text-align: left;
+          cursor: pointer;
+          background: transparent;
+          border: 0;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 14px 16px;
+        }
+        .dms-card-title {
+          color: var(--dsw-alias-label-primary);
+          font-size: 15px;
+          font-weight: 600;
+          line-height: 1.4;
+        }
+        .dms-card-sub {
+          color: var(--dsw-alias-label-secondary);
+          font-size: 13px;
+        }
+        .dms-card-body {
+          border-top: 1px solid var(--dsw-alias-border-l2);
+          margin: 0 16px;
+          padding: 14px 0 16px;
+        }
+        .dms-card-chev {
+          margin-left: auto;
+          flex: none;
+          color: var(--dsw-alias-label-tertiary);
+          transition: transform 0.16s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .dms-card-chev-open {
+          transform: rotate(180deg);
+        }
+        .dms-card-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .dms-card-badge {
+          font-size: 12px;
+          padding: 2px 8px;
+          border-radius: 999px;
+          border: 1px solid var(--dsw-alias-border-l2);
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-weight: 500;
+        }
+        .dms-card-badge-ok {
+          border-color: var(--dsw-alias-state-success-primary);
+          color: var(--dsw-alias-state-success-primary);
+        }
+        .dms-card-badge-warn {
+          border-color: var(--dsw-alias-state-warning-primary);
+          color: var(--dsw-alias-state-warning-primary);
+        }
+        .dms-btn {
+          appearance: none;
+          font: inherit;
+          cursor: pointer;
+          border: 1px solid var(--dsw-alias-border-l2);
+          border-radius: 8px;
+          padding: 6px 14px;
+          font-size: 13px;
+          background: var(--dsw-alias-bg-layer-2);
+          color: var(--dsw-alias-label-primary);
+          font-weight: 500;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.15s ease;
+        }
+        .dms-btn:hover:not(:disabled) {
+          background: var(--dsw-alias-interactive-bg-hover, var(--dsw-alias-bg-layer-hover));
+          border-color: var(--dsw-alias-label-dimmed, var(--dsw-alias-border-l2));
+        }
+        .dms-btn-primary {
+          background: var(--dsw-alias-state-brand-primary, var(--dsw-alias-label-primary));
+          color: var(--dsw-alias-label-primary-inverted, var(--dsw-alias-bg-layer-3));
+          border-color: transparent;
+        }
+        .dms-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      `
       document.head.appendChild(style)
     }
 
@@ -449,29 +574,263 @@ window.__ModuleLoader__.load({
       style?.remove()
     }
 
+    // ── Settings Card (settings.plugin.item) ──────────────────────────────────
+
+    let React = (typeof window !== 'undefined' && window.React) || null
+    if (!React && typeof require === 'function') {
+      try {
+        React = require('react')
+      } catch (_) {}
+    }
+
+    let ChevronIcon = null
+    if (typeof require === 'function') {
+      try {
+        const primitives = require('@deepseek-ai/dsh-client-ui-primitives')
+        ChevronIcon = primitives && primitives.IconChevronDownOutline14
+      } catch (_) {}
+    }
+
+    function FallbackChevron() {
+      if (!React) return null
+      return React.createElement('svg', {
+        width: 14,
+        height: 14,
+        viewBox: '0 0 14 14',
+        fill: 'none',
+        stroke: 'currentColor',
+        strokeWidth: 1.5,
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+      }, React.createElement('path', { d: 'M3.5 5.25L7 8.75L10.5 5.25' }))
+    }
+
+    const Chevron = ChevronIcon || FallbackChevron
+
+    function ModelSearchSettingsCard(props) {
+      const [open, setOpen] = React.useState(false)
+      const [status, setStatus] = React.useState(null)
+      const [loading, setLoading] = React.useState(false)
+      const [updating, setUpdating] = React.useState(false)
+      const [feedback, setFeedback] = React.useState({ text: '', ok: true })
+
+      const t = (props && typeof props.t === 'function')
+        ? props.t
+        : (key) => (typeof translate === 'function' ? translate(key) : key)
+
+      const checkUpdate = React.useCallback(async () => {
+        setLoading(true)
+        setFeedback({ text: '', ok: true })
+        try {
+          const res = await fetch('/api/dsh-model-search/update', {
+            headers: { accept: 'application/json' },
+            cache: 'no-store',
+          })
+          if (!res.ok) throw new Error('HTTP ' + res.status)
+          const data = await res.json()
+          setStatus(data)
+        } catch (e) {
+          setFeedback({ text: (t('dms.updater.failed') || 'Failed') + ': ' + (e?.message || String(e)), ok: false })
+        } finally {
+          setLoading(false)
+        }
+      }, [t])
+
+      const onUpdateNow = async () => {
+        setUpdating(true)
+        setFeedback({ text: '', ok: true })
+        try {
+          const res = await fetch('/api/dsh-model-search/update', {
+            method: 'POST',
+            headers: {
+              'x-dsh-plugin-update': '1',
+              'content-type': 'application/json',
+            },
+          })
+          const data = await res.json()
+          if (!res.ok) throw new Error(data?.error || ('HTTP ' + res.status))
+          setStatus(data)
+          setFeedback({ text: t('dms.updater.restart_notice') || 'Update installed. Restart DSH to apply.', ok: true })
+        } catch (e) {
+          setFeedback({ text: e?.message || String(e), ok: false })
+        } finally {
+          setUpdating(false)
+        }
+      }
+
+      React.useEffect(() => {
+        if (open && status === null) {
+          checkUpdate()
+        }
+      }, [open, status, checkUpdate])
+
+      const currentVer = status?.currentVersion || '0.1.6'
+      const latestVer = status?.latestVersion
+      const updateAvailable = !!status?.updateAvailable && !!latestVer && latestVer !== currentVer
+
+      return React.createElement(
+        'li',
+        { className: 'dms-card' },
+        React.createElement(
+          'button',
+          {
+            type: 'button',
+            className: 'dms-card-head',
+            onClick: () => setOpen(!open),
+            'aria-expanded': open,
+          },
+          React.createElement(
+            'div',
+            { style: { display: 'flex', flexDirection: 'column', gap: '2px' } },
+            React.createElement('span', { className: 'dms-card-title' }, t('dms.title') || 'Model Search'),
+            React.createElement('span', { className: 'dms-card-sub' }, t('dms.desc') || 'Searchable model selector for DeepSeek Harness WebUI')
+          ),
+          React.createElement(
+            'span',
+            { className: 'dms-card-chev' + (open ? ' dms-card-chev-open' : '') },
+            React.createElement(Chevron)
+          )
+        ),
+        open && React.createElement(
+          'div',
+          { className: 'dms-card-body' },
+          React.createElement(
+            'div',
+            { className: 'dms-card-row' },
+            React.createElement(
+              'div',
+              { style: { display: 'flex', flexDirection: 'column', gap: '6px' } },
+              React.createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' } },
+                React.createElement('span', { style: { color: 'var(--dsw-alias-label-secondary)' } }, (t('dms.updater.current') || 'Current version') + ':'),
+                React.createElement('strong', { style: { color: 'var(--dsw-alias-label-primary)' } }, 'v' + currentVer)
+              ),
+              status && React.createElement(
+                'div',
+                { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+                updateAvailable
+                  ? React.createElement(
+                      'span',
+                      { className: 'dms-card-badge dms-card-badge-warn' },
+                      (t('dms.updater.update_available') || 'New release available: v{version}').replace('{version}', latestVer)
+                    )
+                  : React.createElement(
+                      'span',
+                      { className: 'dms-card-badge dms-card-badge-ok' },
+                      '✓ ' + (t('dms.updater.up_to_date') || 'Up to date')
+                    )
+              )
+            ),
+            React.createElement(
+              'div',
+              { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+              updateAvailable && React.createElement(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dms-btn dms-btn-primary',
+                  onClick: onUpdateNow,
+                  disabled: updating,
+                },
+                updating ? (t('dms.updater.updating') || 'Updating…') : (t('dms.updater.update_now') || 'Update now')
+              ),
+              React.createElement(
+                'button',
+                {
+                  type: 'button',
+                  className: 'dms-btn',
+                  onClick: checkUpdate,
+                  disabled: loading || updating,
+                },
+                loading ? (t('dms.updater.checking') || 'Checking…') : (t('dms.updater.check') || 'Check for updates')
+              )
+            )
+          ),
+          feedback.text && React.createElement(
+            'div',
+            {
+              style: {
+                marginTop: '10px',
+                fontSize: '13px',
+                color: feedback.ok ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-state-error-primary)',
+              },
+            },
+            feedback.text
+          )
+        )
+      )
+    }
+
     // ── Cordis Client Module Exports ─────────────────────────────────────────
 
-    exports.inject = ['locale']
+    exports.inject = ['locale', 'slots']
 
     exports.apply = function apply(ctx) {
-      const NS = '@goodandready/dsh-model-search'
+      const NS = 'dsh-model-search'
+      const I18N_NS = '@goodandready/dsh-model-search'
+
+      injectStyles()
 
       if (ctx.locale) {
         ctx.effect(() => {
-          return ctx.locale.register(NS, {
+          return ctx.locale.register(I18N_NS, {
             en: {
               'dms.placeholder': I18N.en.placeholder,
               'dms.empty': I18N.en.empty,
               'dms.clear': I18N.en.clear,
+              'dms.title': I18N.en.title,
+              'dms.desc': I18N.en.desc,
+              'dms.updater.current': I18N.en.updater_current,
+              'dms.updater.check': I18N.en.updater_check,
+              'dms.updater.checking': I18N.en.updater_checking,
+              'dms.updater.update_now': I18N.en.updater_update_now,
+              'dms.updater.updating': I18N.en.updater_updating,
+              'dms.updater.up_to_date': I18N.en.updater_up_to_date,
+              'dms.updater.update_available': I18N.en.updater_update_available,
+              'dms.updater.restart_notice': I18N.en.updater_restart_notice,
+              'dms.updater.failed': I18N.en.updater_failed,
             },
             zh: {
               'dms.placeholder': I18N.zh.placeholder,
               'dms.empty': I18N.zh.empty,
               'dms.clear': I18N.zh.clear,
+              'dms.title': I18N.zh.title,
+              'dms.desc': I18N.zh.desc,
+              'dms.updater.current': I18N.zh.updater_current,
+              'dms.updater.check': I18N.zh.updater_check,
+              'dms.updater.checking': I18N.zh.updater_checking,
+              'dms.updater.update_now': I18N.zh.updater_update_now,
+              'dms.updater.updating': I18N.zh.updater_updating,
+              'dms.updater.up_to_date': I18N.zh.updater_up_to_date,
+              'dms.updater.update_available': I18N.zh.updater_update_available,
+              'dms.updater.restart_notice': I18N.zh.updater_restart_notice,
+              'dms.updater.failed': I18N.zh.updater_failed,
             },
           })
         })
-        translate = ctx.locale.bind(NS)
+        translate = ctx.locale.bind(I18N_NS)
+      }
+
+      const mountSettingsCard = () => {
+        if (!ctx.slots?.register) return
+        return ctx.slots.register(
+          {
+            name: 'settings.plugin.item',
+            key: NS,
+            locale: I18N_NS,
+            inject: () => ({ ctx }),
+          },
+          (props) => (React ? React.createElement(ModelSearchSettingsCard, { ...props, ctx }) : null)
+        )
+      }
+
+      if (ctx.slots?.register) {
+        ctx.effect(() => mountSettingsCard(), '@goodandready/dsh-model-search: settings slot')
+      } else if (typeof ctx.inject === 'function') {
+        ctx.inject(['slots'], (sctx) => {
+          sctx.effect(() => mountSettingsCard(), '@goodandready/dsh-model-search: settings slot')
+        })
       }
 
       start()

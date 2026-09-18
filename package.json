@@ -9,7 +9,8 @@
     "./client": "./lib/client.js",
     "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json",
-    "./matcher": "./lib/matcher.js"
+    "./matcher": "./lib/matcher.js",
+    "./updater": "./lib/updater.js"
   },
   "files": [
     "lib",
@@ -22,7 +23,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node scripts/build.mjs --check && node --test test/*.test.mjs",
-    "check": "node --check lib/index.js && node --check lib/client.js && node --check lib/matcher.js"
+    "check": "node --check lib/index.js && node --check lib/client.js && node --check lib/matcher.js && node --check lib/updater.js"
   },
   "dsh": {
     "bundle": {
@@ -31,7 +32,8 @@
     "client": {
       "platform": "web",
       "inject": [
-        "@deepseek-ai/dsh-client-locale"
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-settings"
       ]
     }
   },

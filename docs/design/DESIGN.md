@@ -58,3 +58,19 @@
   - Dynamic synchronization of `aria-hidden` attributes.
   - `Escape` clears search text if non-empty; `Enter` activates the first visible model.
   - Scroll position resets to top on query change (`groups.scrollTop = 0`).
+
+---
+
+## Settings & Auto-Updater Integration (Issue #20, Variant B)
+- **Decision**: Variant B — Register minimal native settings.plugin.item card under namespace dsh-model-search.
+- **Card UI**:
+  - Registered via ctx.slots.register for slot settings.plugin.item.
+  - Collapsed by default, follows canonical DSH card geometry (12px border radius, 14x16 header padding, 15px/600 title).
+  - Uses strictly semantic theme tokens (--dsw-alias-border-l2, --dsw-alias-bg-layer-3, --dsw-alias-label-*, --dsw-alias-state-*). Zero hardcoded hex or rgba colors.
+  - Native chevron icon with animated 180deg toggle on expansion.
+  - Displays current version, status badge (Up to date vs New release available: v...), and one-click update button.
+- **Host Endpoint**:
+  - Mounted via wctx.effect(() => registerPluginUpdater(wctx, { endpoint: '/api/dsh-model-search/update', packageName: '@goodandready/dsh-model-search', manifestUrl })).
+  - Fail-closed security via isTrustedUpdateRequest: strictly requires loopback address, same-origin, matching host/origin, and x-dsh-plugin-update: 1 header.
+  - Prevents race conditions and double-clicks via single-flight lock (installing = true -> HTTP 409 Conflict).
+  - Recognizes semver upgrades including prerelease transitions via canonical isNewerVersion.
