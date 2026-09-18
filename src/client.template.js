@@ -56,6 +56,7 @@ window.__ModuleLoader__.load({
       if (typeof document === 'undefined' || document.getElementById(STYLE_ID)) return
       const style = document.createElement('style')
       style.id = STYLE_ID
+      style.dataset.dshPlugin = 'dsh-model-search'
       style.textContent = `
         .dms-wrap {
           position: sticky;
