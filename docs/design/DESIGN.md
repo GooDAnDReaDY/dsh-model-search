@@ -74,3 +74,32 @@
   - Fail-closed security via isTrustedUpdateRequest: strictly requires loopback address, same-origin, matching host/origin, and x-dsh-plugin-update: 1 header.
   - Prevents race conditions and double-clicks via single-flight lock (installing = true -> HTTP 409 Conflict).
   - Recognizes semver upgrades including prerelease transitions via canonical isNewerVersion.
+
+---
+
+## Route Policy / Политика маршрутов
+| Route | Method | Source Check / Auth | Description |
+|:---|:---|:---|:---|
+| `/api/dsh-model-search/update` | `GET` | Fail-closed (`isTrustedUpdateRequest`): loopback address, same-origin, header `x-dsh-plugin-update: 1` | Check current vs latest version, update availability status |
+| `/api/dsh-model-search/update` | `POST` | Fail-closed (`isTrustedUpdateRequest`): loopback address, same-origin, header `x-dsh-plugin-update: 1`, single-flight lock | Trigger one-click package update via standard `dsh plugin add` |
+
+---
+
+## Release Hygiene & Packaging / Что публикуется
+- **Дата последней проверки состава**: 2026-09-18.
+- **npm archive (`package.json.files`)**:
+  - `lib/` (runtime modules: `index.js`, `client.js`, `matcher.js`, `updater.js`)
+  - `cordis.patch.yml`
+  - `README.md`, `README.zh.md`, `README.ru.md`
+  - `LICENSE`
+  - *Исключено из npm*: `src/`, `scripts/`, `test/`, `docs/`, `.worktrees/`, `.git/`, `.gitignore`.
+- **GitHub**:
+  - Публичное обезличенное дерево коммитов и релизов.
+  - Внутренние планы `docs/plans/` исключены из отслеживания git (`.gitignore`).
+- **Строгий регламент сборки и упаковки релизов (Issue #36)**:
+  - Релизные tarball-архивы категорически запрещено создавать или хранить в рабочем дереве исходников репозитория (`DEV`).
+  - Упаковка для тестовой проверки или предрелизного контроля выполняется исключительно во временный системный каталог:
+    ```bash
+    npm pack --pack-destination /tmp
+    ```
+  - Регрессионная защита обеспечена автоматическим тестом `test/hygiene.test.mjs`, блокирующим выполнение `npm test` при обнаружении любых оставшихся `*.tgz` файлов в дереве репозитория.
