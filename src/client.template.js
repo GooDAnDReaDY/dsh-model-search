@@ -880,9 +880,28 @@ window.__ModuleLoader__.load({
         }
       }
 
+      // Plugin-list seat (plugins.item): the seat the current core (0.1.6-alpha.2)
+      // renders as the plugin's own page with its configuration. It takes an id and a
+      // static label instead of a key, so it mounts on its own; the label must not read
+      // the locale, because it is resolved while the page renders.
+      const mountItemSeat = () => {
+        if (!ctx.slots?.register) return
+        return ctx.slots.register(
+          {
+            name: 'plugins.item',
+            id: ROW_ID,
+            order: 60,
+            label: () => 'Model Search',
+            locale: I18N_NS,
+            inject: () => ({ ctx }),
+          },
+          (props) => (React ? React.createElement(ModelSearchSettingsCard, { ...props, ctx }) : null)
+        )
+      }
+
       ctx.effect(() => {
-        // Row seat first (the seat the current core renders), legacy seat kept as a
-        // fallback for older cores.
+        // Plugin-list seat first, then the row seat and the legacy seat as fallbacks.
+        registerSlotWhenReady('plugins.item', mountItemSeat)
         registerSlotWhenReady('plugins.row.config', mountSettingsCard('plugins.row.config', ROW_CONFIG_KEY))
         registerSlotWhenReady('settings.plugin.item', mountSettingsCard('settings.plugin.item', NS))
       }, '@goodandready/dsh-model-search: settings slot')
