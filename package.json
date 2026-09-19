@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-model-search",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "DSH web plugin: searchable model selector for DeepSeek Harness WebUI",
   "type": "module",
   "main": "lib/index.js",
