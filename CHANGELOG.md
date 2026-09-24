@@ -2,6 +2,28 @@
 
 Notable changes to `@goodandready/dsh-model-search`.
 
+## 0.1.11
+
+### Fixed
+- **Memory leak in activeMenus Set on dropdown unmount**: `scan()` now prunes
+  disconnected DOM elements (`isConnected === false`), ensuring full teardown
+  (`state.cleanup()`, search wrap removal, event listener detachment) when the
+  model selector menu is unmounted by React (#42).
+- **Hardcoded 0.1.6 fallback in settings card**: eliminated stale `'0.1.6'` fallback
+  in `ModelSearchSettingsCard`. Build step (`scripts/build.mjs`) now dynamically
+  injects the package version from `package.json` at build time (#44).
+- **DOM mutation tracking for nested model groups**: `isMenuNode(node)` now checks
+  ancestor hierarchy via `node.closest?.('[role="menu"], [class*="_menu"]')`,
+  ensuring `MutationObserver` detects dynamic child group insertions when menus
+  render in multiple passes or switch panels (#45).
+
+### Performance
+- **Single query tokenization per filter event**: separated query parsing into
+  `tokenizeQuery(query)` and pre-tokenized queries in `updateFilter()`, replacing
+  hundreds of regex splits per keystroke. `matchesQuery` now evaluates acronyms
+  (`extractInitials`) lazily, bypassing regex splits on models that match directly
+  by substring (#43).
+
 ## 0.1.10
 
 ### Fixed
