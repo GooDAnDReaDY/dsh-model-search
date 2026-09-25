@@ -2,6 +2,16 @@
 
 Notable changes to `@goodandready/dsh-model-search`.
 
+## 0.1.12
+
+### Fixed
+- **Plugin-list label localization**: `plugins.item` slot now registers a dynamic
+  thunk `label: () => getLocalizedTitle()` that resolves to '模型搜索', instead of
+  bypassing the plugin locale dictionary with a hardcoded English literal (#52).
+- **Obsolete settings.register compatibility probe**: removed legacy
+  `ctx.inject(["settings"], ...)` probe calling removed DSH 0.1.7 settings API for
+  an empty Config schema, eliminating runtime debug warnings on host initialization (#51).
+
 ## 0.1.11
 
 ### Fixed
